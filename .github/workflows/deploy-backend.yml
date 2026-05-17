@@ -27,7 +27,6 @@ jobs:
           mask-password: 'true'
 
       - name: Build & push backend
-        env:cd
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
           IMAGE=$REGISTRY/casino-backend

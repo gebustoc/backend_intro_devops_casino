@@ -4,8 +4,8 @@ services:
     build: 
       context: "./db"
     environment:
-      - POSTGRES_USER=casino:${DB_USER}
-      - POSTGRES_PASSWORD=casino:${DB_PASS}
+      - POSTGRES_USER=${DB_USER:-casino}
+      - POSTGRES_PASSWORD=${DB_PASS:-casino}
       - POSTGRES_DB=casino_db  
     networks: 
       - casino-net
@@ -24,10 +24,10 @@ services:
 
     environment:
       - DB_HOST=database 
-      - DB_USER=casino:${DB_USER} 
-      - DB_PASSWORD=casino:${DB_PASS} 
+      - DB_USER=${DB_USER:-casino} 
+      - DB_PASSWORD${DB_PASS:-casino} 
       - DB_NAME=casino_db
-      - JWT_SECRET=dev:${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-dev}
       - CORS_ORIGIN="*"
     networks: 
       - casino-net
@@ -45,7 +45,7 @@ services:
     networks: 
       - casino-net
     ports:
-      - "8000:80"   
+      - "8000:80"
 
 
 volumes:

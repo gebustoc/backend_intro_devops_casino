@@ -42,12 +42,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: IMAGE
           script: |
-            aws ssm send-command --instance-ids ${{secrets.EC2_BACKEND_ID}} --document-name "AWS-RunShellScript" --parameters 'commands=[
-                "sudo -Hiu username bash << END",
-                "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com",
-                "docker volume create pg_data || true",
-                "docker pull \"$IMAGE\"",
-                "docker rm -f casino-db || true",
-                "docker run -d --name casino-db --restart unless-stopped -p 5432:5432 -v pg_data:/var/lib/postgresql/data -e POSTGRES_USER=casino -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -e POSTGRES_DB=casino_db \"$IMAGE\""
-
-            ]'
+            echo "${{ secrets.EC2_SSH_KEY}}" >> .temp
+            chmod 600 .temp
+            
+            ssh -i .temp ec2-user@${{secrets.DB_HOST_PRIVATE}} "
+              aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com;
+              docker volume create pg_data || true;
+              docker pull "$IMAGE";
+              docker rm -f casino-db || true;
+              docker run -d --name casino-db --restart unless-stopped -p 5432:5432 -v pg_data:/var/lib/postgresql/data -e POSTGRES_USER=casino -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -e POSTGRES_DB=casino_db "$IMAGE"            
+              "
+            rm -f .temp

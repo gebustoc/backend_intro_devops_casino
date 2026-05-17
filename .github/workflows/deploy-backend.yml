@@ -46,7 +46,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: IMAGE
           script: |
-            echo ${{ secrets.EC2_SSH_KEY }} >> .temp
+            echo "${{ secrets.EC2_SSH_KEY}}" >> .temp
             chmod 600 .temp
             ssh -i .temp ec2-user@${{secrets.BACKEND_IP}}"aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com;
                 docker pull \"$IMAGE\";

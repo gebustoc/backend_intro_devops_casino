@@ -43,7 +43,7 @@ jobs:
           envs: IMAGE
           script: |
             aws ssm send-command --instance-ids ${{secrets.EC2_BACKEND_ID}} --document-name "AWS-RunShellScript" --parameters 'commands=[
-                "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+                "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com",
                 "docker volume create pg_data || true",
                 "docker pull \"$IMAGE\",
                 "docker rm -f casino-db || true",

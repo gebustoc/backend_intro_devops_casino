@@ -40,23 +40,16 @@ jobs:
         env:
           IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/casino-backend:latest
         with:
-          host: ${{ secrets.EC2_BACKEND_HOST }}
+# couldn't figure out proper sharing, so we're using the front as an entrypoint
+          host: ${{ secrets.EC2_FRONTEND_HOST}}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: IMAGE
           script: |
-            # La EC2 tiene LabInstanceProfile -> puede hacer ecr get-login sin secrets
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-              | docker login --username AWS --password-stdin \
-                ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-            docker pull "$IMAGE"
-            docker rm -f casino-backend || true
-            docker run -d --name casino-backend --restart unless-stopped \
-              -p 3000:3000 \
-              -e DB_HOST=${{ secrets.DB_HOST_PRIVATE }} \
-              -e DB_USER=casino \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_NAME=casino_db \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e CORS_ORIGIN="*" \
-              "$IMAGE"
+            aws ssm send-command --instance-ids ${{secrets.EC2_BACKEND_ID}} --document-name "AWS-RunShellScript" --parameters 'commands=[
+                "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com",
+                "docker pull "$IMAGE",
+                "docker rm -f casino-backend || true",
+                "docker run -d --name casino-backend --restart unless-stopped -p 3000:3000 -e DB_HOST=${{ secrets.DB_HOST_PRIVATE }} -e DB_USER=casino -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e DB_NAME=casino_db -e JWT_SECRET=$secrets.JWT_SECRET}} -e CORS_ORIGIN=\"*\" \"$IMAGE\""
+
+            ]'

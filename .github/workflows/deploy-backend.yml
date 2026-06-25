@@ -52,7 +52,7 @@ jobs:
       - name: Conectar kubectl al cluster
         run: aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$AWS_REGION"
 
-      - name: Desplegar la app y el LoadBalancer
+      - name: Desplegar el back
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |

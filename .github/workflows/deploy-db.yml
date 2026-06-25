@@ -6,50 +6,62 @@ on:
     branches: [ deploy ]
     paths: [ 'db/**', '.github/workflows/deploy-db.yml' ]
 
+
+env:
+  AWS_REGION: us-east-1
+  CLUSTER_NAME: microservicios-casino
+
 jobs:
-  build-push-deploy:
+  buildPush:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
+
+      - name: Configurar credenciales AWS (temporales del Learner Lab)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region:            ${{ secrets.AWS_REGION }}
-      - id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'true'
 
-      - name: Build & push casino-db
+      - name: Login a ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push to ECR
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          IMAGE=$REGISTRY/casino-db
-          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest ./db
-          docker push $IMAGE:${{ github.sha }}
-          docker push $IMAGE:latest
+            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "."
+            docker push "$REGISTRY/casino-db:$IMAGE_TAG"
+            docker push "$REGISTRY/casino-db:latest"
+          
+          
+  k8sDeploy:
+    runs-on: ubuntu-latest
+    needs: buildPush
+    steps:
+      - name: Instalar kubectl en el runner
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
 
-      - name: Desplegar en EC2-database
-        uses: appleboy/ssh-action@v1
+      - name: Conectar kubectl al cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$AWS_REGION"
+
+      - name: Desplegar la BD
         env:
-          IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/casino-db:latest
-        with:
-# couldn't figure out proper sharing, so we're using the front as an entrypoint
-          host: ${{ secrets.EC2_FRONTEND_HOST}}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          envs: IMAGE
-          script: |
-            echo "${{ secrets.EC2_SSH_KEY}}" >> .temp
-            chmod 600 .temp
-            
-            ssh -i .temp ec2-user@${{secrets.DB_HOST_PRIVATE}} "
-              aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com;
-              docker volume create pg_data || true;
-              docker pull "$IMAGE";
-              docker rm -f casino-db || true;
-              docker run -d --name casino-db --restart unless-stopped -p 5432:5432 -v pg_data:/var/lib/postgresql/data -e POSTGRES_USER=casino -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -e POSTGRES_DB=casino_db "$IMAGE"            
-              "
-            rm -f .temp
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
+            kubectl apply -f "k8s/deployment.yaml"
+            kubectl apply -f "k8s/service.yaml"
+         
+      - name: Esperar al rollout
+        run: |
+          kubectl rollout status deployment/apuestas-service --timeout=180s
+          kubectl get pods -o wide

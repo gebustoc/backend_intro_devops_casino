@@ -41,6 +41,7 @@ jobs:
           
   k8sDeploy:
     runs-on: ubuntu-latest
+    needs: buildPush
     steps:
       - name: Instalar kubectl en el runner
         run: |

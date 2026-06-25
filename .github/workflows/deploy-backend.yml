@@ -29,7 +29,7 @@ jobs:
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & push backend
+      - name: Build
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
@@ -42,7 +42,22 @@ jobs:
     needs: build
 
     steps:
-      - name: push backend
+      - name: Configurar credenciales AWS (temporales del Learner Lab)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region:            ${{ secrets.AWS_REGION }}
+
+      - name: Login a ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Push
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-        run: ls # deploy test please have a registry     
+        run:
+          docker push "$REGISTRY/apuestas-service:$IMAGE_TAG"
+          docker push "$REGISTRY/apuestas-service:latest"
+          

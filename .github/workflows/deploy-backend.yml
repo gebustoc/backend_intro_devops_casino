@@ -39,9 +39,9 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
+    needs: build
+
     steps:
-      
-      
       - name: push backend
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}

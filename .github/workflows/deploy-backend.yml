@@ -58,6 +58,6 @@ jobs:
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
-          docker push "$REGISTRY/apuestas-service:$IMAGE_TAG"
-          docker push "$REGISTRY/apuestas-service:latest"
+          docker push "$REGISTRY/casino-backend:$IMAGE_TAG"
+          docker push "$REGISTRY/casino-backend:latest"
           

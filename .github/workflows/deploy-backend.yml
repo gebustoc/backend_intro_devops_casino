@@ -12,7 +12,7 @@ env:
   CLUSTER_NAME: microservicios-casino
 
 jobs:
-  build:
+  buildPush:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,30 +36,37 @@ jobs:
           IMAGE=$REGISTRY/casino-backend
           docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
 
-
-  push:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Configurar credenciales AWS (temporales del Learner Lab)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region:            ${{ secrets.AWS_REGION }}
-
-      - name: Login a ECR
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Push
+      - name: Push to repository
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker images
+          IMAGE=$REGISTRY/casino-backend
           docker push "$REGISTRY/casino-backend:$IMAGE_TAG"
           docker push "$REGISTRY/casino-backend:latest"
+
           
+  k8sDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar kubectl en el runner
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+
+      - name: Conectar kubectl al cluster
+        run: aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$AWS_REGION"
+
+      - name: Desplegar la app y el LoadBalancer
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
+            kubectl apply -f "k8s/deployment.yaml"
+            kubectl apply -f "k8s/service.yaml"
+         
+      - name: Esperar al rollout
+        run: |
+          kubectl rollout status deployment/apuestas-service --timeout=180s
+          kubectl get pods -o wide

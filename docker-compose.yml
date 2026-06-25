@@ -21,7 +21,6 @@ services:
     build: 
       context: "."
 
-
     environment:
       - DB_HOST=database 
       - DB_USER=${DB_USER:-casino} 
@@ -34,8 +33,62 @@ services:
     ports:
       - "3000:3000"    
 
-  front:
+  estadisticas:
+    container_name: estadisticas-service
     
+    build: 
+      context: "../estadisticas-service"
+
+    environment:
+      - DB_HOST=database 
+      - DB_USER=${DB_USER:-casino} 
+      - DB_PASSWORD${DB_PASS:-casino} 
+      - DB_NAME=casino_db
+      - JWT_SECRET=${JWT_SECRET:-dev}
+      - CORS_ORIGIN="*"
+    networks: 
+      - casino-net
+    ports:
+      - "3002:3002"    
+
+  bonos:
+    container_name: bonos-service
+    
+    build: 
+      context: "../bonos-service"
+
+    environment:
+      - DB_HOST=database 
+      - DB_USER=${DB_USER:-casino} 
+      - DB_PASSWORD${DB_PASS:-casino} 
+      - DB_NAME=casino_db
+      - JWT_SECRET=${JWT_SECRET:-dev}
+      - CORS_ORIGIN="*"
+    networks: 
+      - casino-net
+    ports:
+      - "3001:3001"    
+
+  apuestas:
+    container_name: apuestas-service
+    
+    build: 
+      context: "../apuestas-service"
+
+    environment:
+      - DB_HOST=database 
+      - DB_USER=${DB_USER:-casino} 
+      - DB_PASSWORD${DB_PASS:-casino} 
+      - DB_NAME=casino_db
+      - JWT_SECRET=${JWT_SECRET:-dev}
+      - CORS_ORIGIN="*"
+    networks: 
+      - casino-net
+    ports:
+      - "3003:3003"    
+
+
+  front:    
     container_name: frontend-casino
     build: 
       context: "../frontend_intro_devops_casino"    

@@ -1,13 +1,18 @@
 name: Build & Deploy backend
 
 on:
-  workflow_dispatch:           # permite lanzarlo manual desde la pestana Actions
   push:
     branches: [ deploy ]
     paths-ignore: [ 'db/**' ]   # cambios solo en db/ no disparan este job
+  workflow_dispatch:           # permite lanzarlo manual desde la pestana Actions
+
+
+env:
+  AWS_REGION: us-east-1
+  CLUSTER_NAME: microservicios-casino
 
 jobs:
-  build-push-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +28,6 @@ jobs:
       - name: Login a ECR
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'true'
 
       - name: Build & push backend
         env:
@@ -32,29 +35,14 @@ jobs:
         run: |
           IMAGE=$REGISTRY/casino-backend
           docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
-          docker push $IMAGE:${{ github.sha }}
-          docker push $IMAGE:latest
 
-      - name: Desplegar en EC2-backend
-        uses: appleboy/ssh-action@v1
+
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      
+      
+      - name: push backend
         env:
-          IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/casino-backend:latest
-        with:
-# couldn't figure out proper sharing, so we're using the front as an entrypoint
-          host: ${{ secrets.EC2_FRONTEND_HOST}}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          envs: IMAGE
-          script: |
-            echo "${{ secrets.EC2_SSH_KEY}}" >> .temp
-            chmod 600 .temp
-            echo "ec2-user@${{secrets.BACKEND_IP}}" > why
-
-            ssh -i .temp ec2-user@${{secrets.BACKEND_IP}} "
-              aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com;
-              docker pull "$IMAGE";
-              docker rm -f casino-backend || true;
-              docker run -d --name casino-backend --restart unless-stopped -p 3000:3000 -e DB_HOST=${{ secrets.DB_HOST_PRIVATE }} -e DB_USER=casino -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e DB_NAME=casino_db -e JWT_SECRET=$secrets.JWT_SECRET}} -e CORS_ORIGIN="*" "$IMAGE"
-            "
-            rm -f .temp
-          
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: ls # deploy test please have a registry     

@@ -32,12 +32,12 @@ jobs:
       - name: Build & Push to ECR
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          IMAGE=$REGISTRY/casino-backend
-          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
-          docker push "$REGISTRY/casino-backend:$IMAGE_TAG"
-          docker push "$REGISTRY/casino-backend:latest"
-
+            docker build -t "$REGISTRY/casino-backend:$IMAGE_TAG" -t "$REGISTRY/casino-backend:latest" "."
+            docker push "$REGISTRY/casino-backend:$IMAGE_TAG"
+            docker push "$REGISTRY/casino-backend:latest"
+          
           
   k8sDeploy:
     runs-on: ubuntu-latest

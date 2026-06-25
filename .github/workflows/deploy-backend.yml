@@ -57,7 +57,7 @@ jobs:
       - name: Push
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-        run:
+        run: |
           docker push "$REGISTRY/apuestas-service:$IMAGE_TAG"
           docker push "$REGISTRY/apuestas-service:latest"
           

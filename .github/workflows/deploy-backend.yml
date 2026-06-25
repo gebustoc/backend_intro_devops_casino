@@ -29,18 +29,12 @@ jobs:
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build
+      - name: Build & Push to ECR
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
           IMAGE=$REGISTRY/casino-backend
           docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
-
-      - name: Push to repository
-        env:
-          REGISTRY: ${{ steps.ecr.outputs.registry }}
-        run: |
-          IMAGE=$REGISTRY/casino-backend
           docker push "$REGISTRY/casino-backend:$IMAGE_TAG"
           docker push "$REGISTRY/casino-backend:latest"
 

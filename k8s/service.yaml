@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: products-service
+  name: casino-backend
   labels:
-    app: products-service
+    app: casino-backend
 spec:
   # ClusterIP = solo accesible DENTRO del clúster.
   # Otros servicios lo alcanzan vía DNS interno: http://products-service:8001
   type: ClusterIP
   selector:
-    app: products-service
+    app: casino-backend
   ports:
     - name: http
       protocol: TCP
       port: 8001        # puerto del Service (DNS interno)
-      targetPort: 3001  # puerto del contenedor
+      targetPort: 3000  # puerto del contenedor

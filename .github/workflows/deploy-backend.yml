@@ -57,6 +57,7 @@ jobs:
       - name: Push
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker push "$REGISTRY/casino-backend:$IMAGE_TAG"
           docker push "$REGISTRY/casino-backend:latest"

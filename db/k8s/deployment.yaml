@@ -15,6 +15,7 @@ spec:
       labels:
         app: casino-db
     spec:
+      terminationGracePeriodSeconds: 15
       volumes:
         - name: pg-data
           hostPath:
@@ -22,6 +23,7 @@ spec:
             type: Directory
 
       containers:
+      
         - name: casino-db
           image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/casino-db:latest
           ports:
@@ -43,3 +45,13 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
+              
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+            periodSeconds: 10
+          # 3. Liveness Probe: Triggers a container restart if the database locks up entirely
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+            periodSeconds: 20

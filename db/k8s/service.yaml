@@ -12,3 +12,4 @@ spec:
   ports:
       port: 5432        # puerto del Service (DNS interno)
       targetPort: 5432  # puerto del contenedor
+      

@@ -15,5 +15,57 @@ spec:
       protocol: TCP
       port: 8000       # puerto del Service (DNS interno)
       targetPort: 3000  # puerto del contenedor
-
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: casino-backend
+  labels:
+    app: casino-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: casino-backend
+  template:
+    metadata:
+      labels:
+        app: casino-backend
+    spec:
+      containers:
+        - name: casino-backend
+          image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/casino-backend:latest
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+
+
+          env:
+            - name: DB_HOST
+              value: casino-db
+            - name: DB_USER
+              value: "casino" 
+            - name: DB_PASSWORD
+              value: "casino" 
+            - name: DB_NAME
+              value: "casino_db"
+            - name: JWT_SECRET
+              value: "dev"

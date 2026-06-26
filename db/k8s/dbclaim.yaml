@@ -7,7 +7,7 @@ spec:
   volumeName: pg-static
   accessModes:
     - ReadWriteOnce
+  volumeMode: Filesystem
   resources:
     requests:
-      storage: 10Gi
-  storageClassName: 'gp3'
+      storage: 4Gi

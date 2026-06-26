@@ -35,8 +35,8 @@ spec:
 
 
           volumeMounts:                 
-            - mountPath: /var/lib/postgresql/data   
-              name: pg-static
+            - name: pg-static
+              mountPath: /var/lib/postgresql/data   
 
           resources:
             requests:

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ deploy ]
-    paths: [ 'db/**', '.github/workflows/deploy-db.yml' ]
+    paths: [ 'db/**', '.github/d/casino-dbworkflows/deploy-db.yml' ]
 
 
 env:
@@ -80,7 +80,6 @@ jobs:
             sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
             cat k8s/deployment.yaml
 
-            kubectl apply -f "k8s/dbdrive.yaml"
             kubectl apply -f "k8s/dbclaim.yaml"
             kubectl apply -f "k8s/deployment.yaml"
             kubectl apply -f "k8s/service.yaml"

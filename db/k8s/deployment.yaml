@@ -15,20 +15,13 @@ spec:
       labels:
         app: casino-db
     spec:
-      volumes:
-        - name: "pg-data"
-          hostPath:
-            path: "/Users/user/Documents/docker/osdsk8s/pg-data"
-            type: Directory
-
-
 
       containers:
         - name: casino-db
           image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/casino-db:latest
           ports:
             - containerPort: 5432
-
+            
           # here because faster and easier for quickness, maybe i'll properly secret them later
           # i don't know if k8s supports this ${DB_PASS:-casino} type of formatting
           env:
@@ -41,9 +34,6 @@ spec:
 
 
 
-          volumeMounts:                 
-            - name: pg-data
-              mountPath: /var/lib/postgresql/data   
 
           resources:
             limits:

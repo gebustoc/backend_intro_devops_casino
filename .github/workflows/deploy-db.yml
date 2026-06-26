@@ -68,6 +68,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          ls
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
             sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
             kubectl apply -f "k8s/deployment.yaml"

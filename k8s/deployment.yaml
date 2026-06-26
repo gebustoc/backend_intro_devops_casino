@@ -44,7 +44,7 @@ spec:
 
           env:
             - name: DB_HOST
-              value: "database"
+              value: casino-db
             - name: DB_USER
               value: "casino" 
             - name: DB_PASSWORD

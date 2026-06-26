@@ -43,6 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: buildPush
     steps:
+      - name: "i don't know how not to have to checkout again."
+        uses: actions/checkout@v4
+
       - name: Configurar credenciales AWS (temporales del Learner Lab)
         uses: aws-actions/configure-aws-credentials@v4
         with:

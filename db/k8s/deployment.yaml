@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: casino-db
   labels:
     app: casino-db
 
 spec:
+  serviceName: "casino-db"
   replicas: 1
   selector:
     matchLabels:
@@ -16,11 +17,7 @@ spec:
         app: casino-db
     spec:
       terminationGracePeriodSeconds: 15
-      volumes:
-        - name: pg-data
-          hostPath:
-            path: /var/lib/postgresql/data
-            type: Directory
+
 
       containers:
       
@@ -42,6 +39,9 @@ spec:
               mountPath: /var/lib/postgresql/data   
 
           resources:
+            requests:
+              cpu: "128m"
+              memory: "512Mi"
             limits:
               memory: "256Mi"
               cpu: "500m"
@@ -50,8 +50,16 @@ spec:
             exec:
               command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
             periodSeconds: 10
+            initialDelaySeconds: 10
+
           # 3. Liveness Probe: Triggers a container restart if the database locks up entirely
           livenessProbe:
             exec:
               command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
-            periodSeconds: 25
+            initialDelaySeconds: 30
+            periodSeconds: 10
+  
+      volumes:
+        - name: pg-data
+          persistentVolumeClaim:
+            claimName: postgres-data

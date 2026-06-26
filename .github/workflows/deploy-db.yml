@@ -28,13 +28,15 @@ jobs:
       - name: Login a ECR
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
+      - name: Debugging ls
+        run: ls -la
 
       - name: Build & Push to ECR
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "."
+            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "db/"
             docker push "$REGISTRY/casino-db:$IMAGE_TAG"
             docker push "$REGISTRY/casino-db:latest"
           
@@ -74,9 +76,9 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
-            kubectl apply -f "k8s/deployment.yaml"
-            kubectl apply -f "k8s/service.yaml"
+            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "db/k8s/deployment.yaml"
+            kubectl apply -f "db/k8s/deployment.yaml"
+            kubectl apply -f "db/k8s/service.yaml"
          
       - name: Esperar al rollout
         run: |

@@ -4,6 +4,7 @@ metadata:
   name: casino-db
   labels:
     app: casino-db
+
 spec:
   replicas: 1
   selector:

@@ -6,7 +6,6 @@ metadata:
     app: casino-db
 
 spec:
-  serviceName: "casino-db"
   replicas: 1
   selector:
     matchLabels:

@@ -36,7 +36,8 @@ jobs:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "db/"
+            cd db
+            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "."
             docker push "$REGISTRY/casino-db:$IMAGE_TAG"
             docker push "$REGISTRY/casino-db:latest"
           
@@ -75,10 +76,11 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          cd db
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
             sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
-            kubectl apply -f "db/k8s/deployment.yaml"
-            kubectl apply -f "db/k8s/service.yaml"
+            kubectl apply -f "k8s/deployment.yaml"
+            kubectl apply -f "k8s/service.yaml"
          
       - name: Esperar al rollout
         run: |

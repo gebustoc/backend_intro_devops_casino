@@ -36,8 +36,8 @@ spec:
 
           volumeMounts:                 
             - mountPath: /var/lib/postgresql/data   
-              name: postgres-data
-              subPath: postgres-storage
+              name: pg-static
+              subPath: postgres
 
           resources:
             requests:
@@ -61,6 +61,6 @@ spec:
             periodSeconds: 10
   
       volumes:
-        - name: postgres-data
+        - name: pg-static
           persistentVolumeClaim:
-            claimName: postgres-data
+            claimName: pg-static

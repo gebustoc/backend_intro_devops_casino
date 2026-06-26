@@ -14,6 +14,20 @@ spec:
       labels:
         app: casino-back
     spec:
+      env:
+      - name: DB_HOST
+        value: "database"
+      - name: DB_USER
+        value: "casino" 
+      - name: DB_PASSWORD
+        value: "casino" 
+      - name: DB_NAME
+        value: "casino_db"
+      - name: JWT_SECRET
+        value: "dev"
+      - name: CORS_ORIGIN
+        value: "*"
+
       containers:
         - name: casino-back
           image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/casino-back:latest

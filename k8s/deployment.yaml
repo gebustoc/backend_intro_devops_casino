@@ -18,19 +18,19 @@ spec:
         - name: casino-back
           image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/casino-back:latest
           ports:
-            - containerPort: 3002
+            - containerPort: 3000
           # Probe de "vivo": si falla, Kubernetes reinicia el contenedor.
           livenessProbe:
             httpGet:
               path: /livez
-              port: 3002
+              port: 3000
             initialDelaySeconds: 5
             periodSeconds: 10
           # Probe de "listo": si falla, no recibe tráfico desde el Service.
           readinessProbe:
             httpGet:
               path: /readyz
-              port: 3002
+              port: 3000
             initialDelaySeconds: 3
             periodSeconds: 5
           resources:

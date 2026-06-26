@@ -53,5 +53,3 @@ spec:
               value: "casino_db"
             - name: JWT_SECRET
               value: "dev"
-            - name: CORS_ORIGIN
-              value: "*"

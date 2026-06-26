@@ -77,7 +77,7 @@ jobs:
         run: |
             cd db
             ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
+            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; "k8s/deployment.yaml"
             cat k8s/deployment.yaml
             kubectl apply -f "k8s/dbclaim.yaml"
             kubectl apply -f "k8s/deployment.yaml"

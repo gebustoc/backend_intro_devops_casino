@@ -34,9 +34,10 @@ spec:
               value: "casino_db"
 
 
-#          volumeMounts:                 
-#            - name: pg-data
-#              mountPath: /var/lib/postgresql/data   
+          volumeMounts:                 
+            - mountPath: /var/lib/postgresql/data   
+              name: postgres-data
+              subPath: postgres-storage
 
           resources:
             requests:
@@ -59,7 +60,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
   
-#      volumes:
-#        - name: pg-data
-#          persistentVolumeClaim:
-#            claimName: postgres-data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data

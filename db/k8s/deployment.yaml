@@ -4,7 +4,6 @@ metadata:
   name: casino-db
   labels:
     app: casino-db
-
 spec:
   replicas: 1
   selector:
@@ -15,32 +14,29 @@ spec:
       labels:
         app: casino-db
     spec:
-      volumes:
-        - name: pg-data
-          hostPath:
-            path: /var/lib/postgresql/data
-            type: Directory
-
       containers:
         - name: casino-db
           image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/casino-db:latest
-          env:
-            - name: POSTGRES_USER
-              value: "casino"
-            - name: POSTGRES_PASSWORD
-              value: "casino"
-            - name: POSTGRES_DB
-              value: "casino_db"
-
-
           ports:
             - containerPort: 5432
-
-          volumeMounts:                 
-            - name: pg-data
-              mountPath: /var/lib/postgresql/data   
-
+          # Probe de "vivo": si falla, Kubernetes reinicia el contenedor.
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          # Probe de "listo": si falla, no recibe tráfico desde el Service.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
           resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
             limits:
-              memory: "256Mi"
-              cpu: "500m"
+              cpu: "250m"
+              memory: "128Mi"

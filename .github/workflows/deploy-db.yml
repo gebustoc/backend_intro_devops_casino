@@ -63,12 +63,13 @@ jobs:
 
       - name: Conectar kubectl al cluster
         run: aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$AWS_REGION"
+      - name: Debugging ls
+        run: ls -la
 
       - name: Desplegar la BD
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          ls
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
             sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
             kubectl apply -f "k8s/deployment.yaml"

@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: casino-db
   labels:
     app: casino-db
 
 spec:
+  serviceName: "casino-db"
   replicas: 1
   selector:
     matchLabels:

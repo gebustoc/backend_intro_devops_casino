@@ -78,5 +78,5 @@ jobs:
          
       - name: Esperar al rollout
         run: |
-          kubectl rollout status deployment/casino-backend --timeout=180s
+          kubectl rollout status statefulset/casino-backend --timeout=180s
           kubectl get pods -o wide

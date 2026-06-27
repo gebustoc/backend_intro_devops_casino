@@ -35,7 +35,7 @@ spec:
 
 
           volumeMounts:                 
-            - name: pg-static
+            - name: pg-persist
               mountPath: /var/lib/postgresql/data   
 
           resources:
@@ -60,6 +60,6 @@ spec:
             periodSeconds: 10
   
       volumes:
-        - name: pg-static
+        - name: pg-persist
           persistentVolumeClaim:
-            claimName: pg-static
+            claimName: pg-persist

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pg-static
+  name: pg-persist
   namespace: default
 spec:
-  volumeName: pg-static
+  volumeName: pg-persist
   accessModes:
     - ReadWriteOnce
   volumeMode: Filesystem

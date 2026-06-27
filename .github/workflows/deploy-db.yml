@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ deploy ]
-    paths: [ 'db/**', '.github/d/casino-dbworkflows/deploy-db.yml' ]
+    paths: [ 'db/**', '.github/workflows/deploy-db.yml' ]
 
 
 env:

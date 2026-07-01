@@ -40,3 +40,16 @@ spec:
             limits:
               cpu: "250m"
               memory: "128Mi"
+
+
+          env:
+            - name: DB_HOST
+              value: casino-db
+            - name: DB_USER
+              value: "casino" 
+            - name: DB_PASSWORD
+              value: "casino" 
+            - name: DB_NAME
+              value: "casino_db"
+            - name: JWT_SECRET
+              value: "dev"

@@ -36,7 +36,8 @@ jobs:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "db/"
+            cd db
+            docker build -t "$REGISTRY/casino-db:$IMAGE_TAG" -t "$REGISTRY/casino-db:latest" "."
             docker push "$REGISTRY/casino-db:$IMAGE_TAG"
             docker push "$REGISTRY/casino-db:latest"
           

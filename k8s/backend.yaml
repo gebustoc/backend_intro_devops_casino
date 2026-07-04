@@ -15,3 +15,5 @@ spec:
       protocol: TCP
       port: 8000       # puerto del Service (DNS interno)
       targetPort: 3000  # puerto del contenedor
+
+---

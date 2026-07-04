@@ -53,11 +53,6 @@ spec:
             - name: POSTGRES_DB
               value: "casino_db"
 
-
-          #volumeMounts:                 
-          #  - name: pg-storage
-          #    mountPath: /var/lib/postgresql/data   
-
           resources:
             requests:
               cpu: "128m"
@@ -71,8 +66,3 @@ spec:
               command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
             periodSeconds: 10
             initialDelaySeconds: 10
-  
-#      volumes:
-#        - name: pg-storage
-#          persistentVolumeClaim:
-#            claimName: pg-storage

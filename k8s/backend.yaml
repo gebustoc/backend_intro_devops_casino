@@ -11,9 +11,9 @@ spec:
   selector:
     app: casino-backend
   ports:
-    - name: http
+    - name: back-ext
       protocol: TCP
-      port: 8000       # puerto del Service (DNS interno)
+      port: 3000       # puerto del Service (DNS interno)
       targetPort: 3000  # puerto del contenedor
 ---
 apiVersion: apps/v1

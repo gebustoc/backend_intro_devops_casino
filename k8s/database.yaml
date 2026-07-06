@@ -47,11 +47,23 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: "casino"
+              valueFrom:
+                secretKeyRef:
+                  name: casino-secrets
+                  key: POSTGRES_USER
+                  
             - name: POSTGRES_PASSWORD
-              value: "casino"
+              valueFrom:
+                secretKeyRef:
+                  name: casino-secrets
+                  key: POSTGRES_PASSWORD
+                  
+
             - name: POSTGRES_DB
-              value: "casino_db"
+              valueFrom:
+                secretKeyRef:
+                  name: casino-secrets
+                  key: POSTGRES_DB
 
           resources:
             requests:

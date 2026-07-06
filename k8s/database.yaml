@@ -58,7 +58,6 @@ spec:
                   name: casino-secrets
                   key: POSTGRES_PASSWORD
                   
-
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:

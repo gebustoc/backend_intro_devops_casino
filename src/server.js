@@ -65,6 +65,7 @@ app.use((err, req, res, next) => {
   // Espera a que Postgres esté listo antes de levantar el servidor HTTP.
   // Necesario cuando el backend arranca antes que el contenedor de la BD
   // (depende de depends_on + healthcheck en docker-compose.yml).
+
   await esperarBD();
   await sembrarUsuariosDemo();
 

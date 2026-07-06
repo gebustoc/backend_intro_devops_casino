@@ -1,3 +1,23 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: casino-db
+  labels:
+    app: casino-db
+
+
+spec:
+  type: ClusterIP
+  selector:
+    app: casino-db
+  ports:
+    - name: postgres
+      protocol: TCP
+      port: 5432        # puerto del Service (DNS interno)
+      targetPort: 5432  # puerto del contenedor
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -27,16 +47,22 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: "casino"
+              valueFrom:
+                secretKeyRef:
+                  name: casino-secrets
+                  key: POSTGRES_USER
+                  
             - name: POSTGRES_PASSWORD
-              value: "casino"
+              valueFrom:
+                secretKeyRef:
+                  name: casino-secrets
+                  key: POSTGRES_PASSWORD
+                  
             - name: POSTGRES_DB
-              value: "casino_db"
-
-
-          volumeMounts:                 
-            - name: pg-storage
-              mountPath: /var/lib/postgresql/data   
+              valueFrom:
+                secretKeyRef:
+                  name: casino-secrets
+                  key: POSTGRES_DB
 
           resources:
             requests:
@@ -51,15 +77,3 @@ spec:
               command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
             periodSeconds: 10
             initialDelaySeconds: 10
-
-          # 3. Liveness Probe: Triggers a container restart if the database locks up entirely
-          livenessProbe:
-            exec:
-              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
-            initialDelaySeconds: 30
-            periodSeconds: 10
-  
-      volumes:
-        - name: pg-storage
-          persistentVolumeClaim:
-            claimName: pg-storage

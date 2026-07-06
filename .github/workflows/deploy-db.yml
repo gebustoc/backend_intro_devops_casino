@@ -28,8 +28,7 @@ jobs:
       - name: Login a ECR
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Debugging ls
-        run: ls -la
+
 
       - name: Build & Push to ECR
         env:
@@ -75,15 +74,25 @@ jobs:
       - name: Desplegar la BD
         env:
           IMAGE_TAG: ${{ github.sha }}
-        run: |
-            cd db
-            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/deployment.yaml"
-            cat k8s/deployment.yaml
+          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{secrets.POSTGRES_DB}}
+          JWT_SECRET: ${{secrets.JWT_SECRET}}
 
-            kubectl apply -f "k8s/dbstorage.yaml"
-            kubectl apply -f "k8s/deployment.yaml"
-            kubectl apply -f "k8s/service.yaml"
+        run: |
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            sed -i "s|<ACCOUNT_ID>|$ACCOUNT_ID|g; s|<REGION>|$AWS_REGION|g; s|:latest|:$IMAGE_TAG|g" "k8s/database.yaml"
+            sed -i "s|<POSTGRES_USER>|$POSTGRES_USER|g;" "k8s/secrets.yaml"
+            sed -i "s|<POSTGRES_PASSWORD>|$POSTGRES_PASSWORD|g;" "k8s/secrets.yaml"
+            sed -i "s|<POSTGRES_DB>|$POSTGRES_DB|g;" "k8s/secrets.yaml"
+            sed -i "s|<JWT_SECRET>|$JWT_SECRET|g;" "k8s/secrets.yaml"
+            
+            cat k8s/secrets.yaml
+
+            kubectl apply -f "k8s/secrets.yaml"
+            kubectl apply -f "k8s/database.yaml"
+
+
          
       - name: Esperar al rollout
         run: |

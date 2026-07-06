@@ -87,6 +87,8 @@ jobs:
             sed -i "s|<POSTGRES_DB>|$POSTGRES_DB|g;" "k8s/secrets.yaml"
             sed -i "s|<JWT_SECRET>|$JWT_SECRET|g;" "k8s/secrets.yaml"
             
+            cat k8s/secrets.yaml
+
             kubectl apply -f "k8s/secrets.yaml"
             kubectl apply -f "k8s/database.yaml"
 

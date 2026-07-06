@@ -61,23 +61,24 @@ spec:
           env:
             - name: DB_HOST
               value: casino-db
-            - name: POSTGRES_USER
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: casino-secrets
                   key: POSTGRES_USER
                   
-            - name: POSTGRES_PASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: casino-secrets
                   key: POSTGRES_PASSWORD
                   
-            - name: POSTGRES_DB
+            - name: DB_NAME
               valueFrom:
                 secretKeyRef:
                   name: casino-secrets
                   key: POSTGRES_DB
+
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:

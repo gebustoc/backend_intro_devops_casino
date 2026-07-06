@@ -28,8 +28,7 @@ jobs:
       - name: Login a ECR
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Debugging ls
-        run: ls -la
+
 
       - name: Build & Push to ECR
         env:

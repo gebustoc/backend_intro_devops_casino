@@ -5,6 +5,7 @@ DevOps (ISY1101)**. Node.js + Express con PostgreSQL. Emite el **JWT** (HS256)
 que validan los demás microservicios, y gestiona auth, juegos, saldo y
 transacciones.
 
+
 ## Stack
 - Node.js 20 · Express 4
 - PostgreSQL 16 (`pg`)
@@ -74,6 +75,6 @@ Trabaja en tu **fork**, con ramas `dev` (trabajo) y `deploy` (gatilla el pipelin
 4. **Workflow CI/CD** (`.github/workflows/`) gatillado por `deploy`, con la etapa
    de *test*. Credenciales por **GitHub Secrets**.
 5. **HPA** (autoescalado por CPU) y autorecuperación de pods.
-
+jkh
 > El backend es **interno** (ClusterIP): nunca se expone a Internet.
 > Transversal (clúster, una sola vez): **Prometheus + Grafana** y el **video**.

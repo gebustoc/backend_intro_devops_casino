@@ -12,8 +12,20 @@ env:
   CLUSTER_NAME: microservicios-casino
 
 jobs:
+  runTests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instala librerias
+        run: npm ci
+      - name: Corre Pruebas
+        run: npm test
+
+
   buildPush:
     runs-on: ubuntu-latest
+    needs: runTests
     steps:
       - uses: actions/checkout@v4
 
